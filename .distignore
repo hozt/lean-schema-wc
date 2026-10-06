@@ -1,0 +1,11 @@
+.git
+.github
+.gitignore
+.gitattributes
+.distignore
+.DS_Store
+README.md
+build
+*.zip
+node_modules
+vendor

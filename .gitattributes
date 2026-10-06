@@ -1,0 +1,6 @@
+# Keep repo-only files out of GitHub's "Source code" downloads.
+/.github        export-ignore
+/.gitignore     export-ignore
+/.gitattributes export-ignore
+/.distignore    export-ignore
+/README.md      export-ignore

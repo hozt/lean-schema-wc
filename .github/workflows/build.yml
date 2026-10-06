@@ -1,0 +1,85 @@
+name: Build plugin zip
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  lint:
+    name: PHP ${{ matrix.php }} lint
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        php: ['7.4', '8.3']
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php }}
+          coverage: none
+          tools: none
+
+      - name: Lint PHP files
+        run: find . -name '*.php' -not -path './build/*' -print0 | xargs -0 -n1 php -l
+
+  build:
+    name: Build zip
+    needs: lint
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Read and check version numbers
+        id: version
+        run: |
+          header=$(grep -m1 -E '^[[:space:]]*\*[[:space:]]*Version:' lean-schema-wc.php | awk '{print $NF}')
+          const=$(grep -m1 -E "const VERSION" lean-schema-wc.php | sed -E "s/.*'([^']+)'.*/\1/")
+          stable=$(grep -m1 -E '^Stable tag:' readme.txt | awk '{print $NF}')
+          echo "Plugin header: $header | VERSION const: $const | readme Stable tag: $stable"
+          if [ "$header" != "$const" ] || [ "$header" != "$stable" ]; then
+            echo "::error::Version mismatch. Plugin header ($header), VERSION const ($const) and readme Stable tag ($stable) must match."
+            exit 1
+          fi
+          echo "version=$header" >> "$GITHUB_OUTPUT"
+
+      - name: Check tag matches version
+        if: startsWith(github.ref, 'refs/tags/')
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          if [ "$tag" != "${{ steps.version.outputs.version }}" ]; then
+            echo "::error::Tag $GITHUB_REF_NAME does not match plugin version ${{ steps.version.outputs.version }}."
+            exit 1
+          fi
+
+      - name: Build zip
+        id: zip
+        run: |
+          name="lean-schema-wc-${{ steps.version.outputs.version }}.zip"
+          mkdir -p build/lean-schema-wc
+          rsync -a --exclude-from=.distignore ./ build/lean-schema-wc/
+          (cd build && zip -rq "../$name" lean-schema-wc)
+          unzip -l "$name"
+          echo "name=$name" >> "$GITHUB_OUTPUT"
+
+      - name: Upload build artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: lean-schema-wc-${{ steps.version.outputs.version }}
+          path: build/
+          retention-days: 30
+
+      - name: Publish GitHub release
+        if: startsWith(github.ref, 'refs/tags/')
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" "${{ steps.zip.outputs.name }}" \
+            --title "Lean Schema for WooCommerce ${{ steps.version.outputs.version }}" \
+            --generate-notes
