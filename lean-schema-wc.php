@@ -2,7 +2,7 @@
 /**
  * Plugin Name:          Lean Schema for WooCommerce
  * Description:          Lightweight, complete JSON-LD structured data for WooCommerce: Product / ProductGroup with variants, offers, sale prices, reviews, shipping and return policy, breadcrumbs, and Organization. Replaces WooCommerce's default markup so nothing is duplicated.
- * Version:              1.2.1
+ * Version:              1.2.2
  * Author:               Jeffrey Haug
  * Author URI:           https://hozt.com
  * Requires at least:    6.0
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Lean_Schema_WC {
 
-	const VERSION          = '1.2.1';
+	const VERSION          = '1.2.2';
 	const META_BRAND       = '_lsw_brand';
 	const META_BRAND_URL   = '_lsw_brand_url';
 	const META_MPN         = '_lsw_mpn';
@@ -198,7 +198,8 @@ final class Lean_Schema_WC {
 	 * ------------------------------------------------------------------- */
 
 	private function product_node( WC_Product $p ) {
-		$url  = get_permalink( $p->get_id() );
+		// Filterable so sites that redirect /product/ permalinks to landing pages can point schema at the real page.
+		$url  = apply_filters( 'lsw_product_url', get_permalink( $p->get_id() ), $p );
 		$node = array(
 			'@type' => 'Product',
 			'@id'   => $url . '#product',
@@ -273,6 +274,13 @@ final class Lean_Schema_WC {
 			}
 
 			$vurl = $v->get_permalink();
+			$base_url = apply_filters( 'lsw_product_url', get_permalink( $p->get_id() ), $p );
+			if ( $base_url !== get_permalink( $p->get_id() ) ) {
+				// Keep the ?attribute_* selection, but on the filtered base URL.
+				$vquery = wp_parse_url( $vurl, PHP_URL_QUERY );
+				parse_str( $vquery ? $vquery : '', $vargs );
+				$vurl = add_query_arg( $vargs, $base_url );
+			}
 			$vn   = array(
 				'@type' => 'Product',
 				'@id'   => $vurl . '#product',

@@ -5,7 +5,7 @@ Tags: schema, structured data, json-ld, woocommerce, rich results
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.1
+Stable tag: 1.2.2
 License: GPLv2 or later
 
 Lightweight, complete JSON-LD structured data for WooCommerce. One file, no front-end CSS/JS, no database tables.
@@ -58,6 +58,7 @@ If your SEO plugin already outputs breadcrumbs, untick "Breadcrumbs" in the sett
 * lsw_output_enabled (bool)
 * lsw_graph (array $graph)
 * lsw_product (array $node, WC_Product $product)
+* lsw_product_url (string $url, WC_Product $product)
 * lsw_variant (array $node, WC_Product_Variation $variation, WC_Product_Variable $parent)
 * lsw_offer (array $offer, WC_Product $product)
 * lsw_shipping_details (array $details, WC_Product|null $product)
@@ -67,6 +68,9 @@ If your SEO plugin already outputs breadcrumbs, untick "Breadcrumbs" in the sett
 * lsw_max_variants (int, default 50)
 
 == Changelog ==
+
+= 1.2.2 =
+* Added the lsw_product_url filter, so sites that redirect product permalinks to landing pages can point Product, variant and Offer URLs at the real page.
 
 = 1.2.1 =
 * Schema now also outputs for products embedded on pages and posts with the Single Product block.

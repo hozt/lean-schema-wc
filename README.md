@@ -64,6 +64,7 @@ If your SEO plugin already outputs breadcrumbs, untick **Breadcrumbs** in the se
 | `lsw_output_enabled` | `bool` |
 | `lsw_graph` | `array $graph` |
 | `lsw_product` | `array $node, WC_Product $product` |
+| `lsw_product_url` | `string $url, WC_Product $product` |
 | `lsw_variant` | `array $node, WC_Product_Variation $variation, WC_Product_Variable $parent` |
 | `lsw_offer` | `array $offer, WC_Product $product` |
 | `lsw_shipping_details` | `array $details, WC_Product\|null $product` |
