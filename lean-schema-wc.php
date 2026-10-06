@@ -2,7 +2,7 @@
 /**
  * Plugin Name:          Lean Schema for WooCommerce
  * Description:          Lightweight, complete JSON-LD structured data for WooCommerce: Product / ProductGroup with variants, offers, sale prices, reviews, shipping and return policy, breadcrumbs, and Organization. Replaces WooCommerce's default markup so nothing is duplicated.
- * Version:              1.2.2
+ * Version:              1.2.3
  * Author:               Jeffrey Haug
  * Author URI:           https://hozt.com
  * Requires at least:    6.0
@@ -19,7 +19,7 @@ defined( 'ABSPATH' ) || exit;
 
 final class Lean_Schema_WC {
 
-	const VERSION          = '1.2.2';
+	const VERSION          = '1.2.3';
 	const META_BRAND       = '_lsw_brand';
 	const META_BRAND_URL   = '_lsw_brand_url';
 	const META_MPN         = '_lsw_mpn';
@@ -293,6 +293,14 @@ final class Lean_Schema_WC {
 				if ( $img ) {
 					$vn['image'] = $img;
 				}
+			}
+			// Google does not inherit image/description from the ProductGroup, so fall back to the parent's.
+			if ( empty( $vn['image'] ) && ! empty( $node['image'] ) ) {
+				$vn['image'] = $node['image'];
+			}
+			if ( ! empty( $node['description'] ) ) {
+				$vdesc = $this->description( $v );
+				$vn['description'] = '' !== $vdesc ? $vdesc : $node['description'];
 			}
 
 			$this->add_identifiers( $vn, $v );

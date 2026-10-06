@@ -5,7 +5,7 @@ Tags: schema, structured data, json-ld, woocommerce, rich results
 Requires at least: 6.0
 Tested up to: 6.8
 Requires PHP: 7.4
-Stable tag: 1.2.2
+Stable tag: 1.2.3
 License: GPLv2 or later
 
 Lightweight, complete JSON-LD structured data for WooCommerce. One file, no front-end CSS/JS, no database tables.
@@ -68,6 +68,9 @@ If your SEO plugin already outputs breadcrumbs, untick "Breadcrumbs" in the sett
 * lsw_max_variants (int, default 50)
 
 == Changelog ==
+
+= 1.2.3 =
+* Variant products now fall back to the parent product's image and description, fixing Google's "Missing field image" error on variable products whose variations have no image of their own.
 
 = 1.2.2 =
 * Added the lsw_product_url filter, so sites that redirect product permalinks to landing pages can point Product, variant and Offer URLs at the real page.
